@@ -26,7 +26,11 @@ export default function ContentDashboard({
     blog: "Blog Post",
     linkedin: "LinkedIn Posts",
     twitter: "Twitter Posts",
-    "google-ads": "Google Ads"
+    instagram: "Instagram Posts",
+    facebook: "Facebook Posts",
+    "google-ads": "Google Ads",
+    email: "Email Campaign",
+    newsletter: "Newsletter"
   };
 
   const handleExport = (content: GeneratedContent) => {
@@ -83,10 +87,14 @@ export default function ContentDashboard({
               </p>
             </div>
             <button
-              onClick={onNewContent}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onNewContent();
+              }}
               className="px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg font-medium transition-all shadow-md"
             >
-              New Content
+              ← Back to Home
             </button>
           </div>
 

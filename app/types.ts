@@ -4,7 +4,11 @@ export type ContentFormat =
   | "blog"
   | "linkedin"
   | "twitter"
-  | "google-ads";
+  | "google-ads"
+  | "instagram"
+  | "facebook"
+  | "email"
+  | "newsletter";
 
 export interface BrandVoiceAnalysis {
   tone: string;
@@ -22,8 +26,9 @@ export interface GeneratedContent {
 }
 
 export interface BrandVoiceExample {
-  type: "text" | "image";
+  type: "text" | "image" | "mixed";
   content: string; // text content or base64 image data
+  textContent?: string; // additional text when type is "mixed" or "image"
   mimeType?: string; // for images: image/png, image/jpeg, etc.
 }
 

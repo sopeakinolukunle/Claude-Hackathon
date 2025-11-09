@@ -59,7 +59,11 @@ export default function ContentStudio() {
     { value: "blog", label: "Blog Post", description: "800-1200 words, SEO-optimized" },
     { value: "linkedin", label: "LinkedIn Posts", description: "3 posts with varying angles" },
     { value: "twitter", label: "Twitter Posts", description: "5 bite-sized insights" },
-    { value: "google-ads", label: "Google Ads", description: "3 variations for A/B testing" }
+    { value: "instagram", label: "Instagram Posts", description: "3 captions with hashtags" },
+    { value: "facebook", label: "Facebook Posts", description: "3 posts with engagement hooks" },
+    { value: "google-ads", label: "Google Ads", description: "3 variations for A/B testing" },
+    { value: "email", label: "Email Campaign", description: "Subject line, preheader, and body" },
+    { value: "newsletter", label: "Newsletter", description: "Complete newsletter with sections" }
   ];
 
   const toggleFormat = (format: ContentFormat) => {
@@ -242,7 +246,7 @@ export default function ContentStudio() {
             <label className="block text-sm font-semibold text-gray-700 mb-4">
               Content Formats
             </label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {formats.map((format) => (
                 <button
                   key={format.value}

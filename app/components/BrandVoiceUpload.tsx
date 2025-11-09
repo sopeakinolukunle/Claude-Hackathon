@@ -13,9 +13,18 @@ export default function BrandVoiceUpload({ onBack, onComplete }: BrandVoiceUploa
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([null, null, null]);
 
-  const handleExampleChange = (index: number, value: string, type: "text" | "image" = "text") => {
+  const handleTextChange = (index: number, value: string) => {
     const newExamples = [...examples];
-    newExamples[index] = { type, content: value };
+    if (!newExamples[index]) {
+      newExamples[index] = { type: 'text', content: value };
+    } else {
+      newExamples[index] = {
+        ...newExamples[index]!,
+        type: newExamples[index]!.type === 'image' ? 'mixed' : (newExamples[index]!.type === 'mixed' ? 'mixed' : 'text'),
+        textContent: value,
+        content: newExamples[index]!.type === 'image' || newExamples[index]!.type === 'mixed' ? newExamples[index]!.content : value
+      };
+    }
     setExamples(newExamples);
   };
 
@@ -27,7 +36,16 @@ export default function BrandVoiceUpload({ onBack, onComplete }: BrandVoiceUploa
       const reader = new FileReader();
       reader.onload = (e) => {
         const base64 = e.target?.result as string;
-        handleExampleChange(index, base64, "image");
+        const newExamples = [...examples];
+        const existingExample = newExamples[index];
+        
+        newExamples[index] = {
+          type: existingExample && existingExample.textContent ? 'mixed' : 'image',
+          content: base64,
+          textContent: existingExample?.textContent || '',
+          mimeType: file.type
+        };
+        setExamples(newExamples);
       };
       reader.readAsDataURL(file);
       return;
@@ -38,7 +56,7 @@ export default function BrandVoiceUpload({ onBack, onComplete }: BrandVoiceUploa
       const reader = new FileReader();
       reader.onload = (e) => {
         const text = e.target?.result as string;
-        handleExampleChange(index, text, "text");
+        handleTextChange(index, text);
       };
       reader.readAsText(file);
     } else {
@@ -46,14 +64,14 @@ export default function BrandVoiceUpload({ onBack, onComplete }: BrandVoiceUploa
       const reader = new FileReader();
       reader.onload = (e) => {
         const text = e.target?.result as string;
-        handleExampleChange(index, text, "text");
+        handleTextChange(index, text);
       };
       reader.readAsText(file);
     }
   };
 
   const handleAnalyze = async () => {
-    const validExamples = examples.filter(ex => ex && ex.content && ex.content.trim().length > 0) as BrandVoiceExample[];
+    const validExamples = examples.filter(ex => ex && ((ex.content && ex.content.trim().length > 0) || (ex.textContent && ex.textContent.trim().length > 0))) as BrandVoiceExample[];
     if (validExamples.length < 2) {
       alert("Please provide at least 2 examples of your brand voice.");
       return;
@@ -64,8 +82,9 @@ export default function BrandVoiceUpload({ onBack, onComplete }: BrandVoiceUploa
       // Prepare examples with proper format
       const formattedExamples = validExamples.map(ex => ({
         type: ex.type,
-        content: ex.content,
-        mimeType: ex.type === 'image' ? (ex.content.match(/data:([^;]+)/)?.[1] || 'image/png') : undefined
+        content: ex.content || '',
+        textContent: ex.textContent || '',
+        mimeType: ex.type === 'image' || ex.type === 'mixed' ? (ex.mimeType || (ex.content?.match(/data:([^;]+)/)?.[1] || 'image/png')) : undefined
       }));
 
       // Call API to analyze brand voice
@@ -110,12 +129,15 @@ export default function BrandVoiceUpload({ onBack, onComplete }: BrandVoiceUploa
     onBack();
   };
 
-  const getExampleDisplay = (example: BrandVoiceExample | null) => {
-    if (!example) return "";
-    if (example.type === "image") {
-      return "[Image uploaded]";
+  const removeImage = (index: number) => {
+    const newExamples = [...examples];
+    const existing = newExamples[index];
+    if (existing && existing.textContent) {
+      newExamples[index] = { type: 'text', content: existing.textContent };
+    } else {
+      newExamples[index] = null;
     }
-    return example.content;
+    setExamples(newExamples);
   };
 
   return (
@@ -156,8 +178,7 @@ export default function BrandVoiceUpload({ onBack, onComplete }: BrandVoiceUploa
               Brand Voice Calibration
             </h2>
             <p className="text-gray-600">
-              Upload files (text, images, PDFs) or paste 2-3 examples of your existing content. Claude will analyze the writing style,
-              tone, terminology, visual design, and structure to match your brand voice in all generated content.
+              Upload images and/or paste text for each example. You can combine both - upload an image and add text to explain it. Claude will analyze everything to understand your brand voice.
             </p>
           </div>
 
@@ -169,13 +190,15 @@ export default function BrandVoiceUpload({ onBack, onComplete }: BrandVoiceUploa
                 </label>
                 
                 {/* File Upload Button */}
-                <div className="mb-2 flex gap-2">
+                <div className="mb-2 flex gap-2 flex-wrap">
                   <input
                     type="file"
                     ref={(el) => { fileInputRefs.current[index] = el; }}
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) handleFileUpload(index, file);
+                      // Reset input so same file can be selected again
+                      e.target.value = '';
                     }}
                     accept=".txt,.doc,.docx,.pdf,image/*"
                     className="hidden"
@@ -188,23 +211,34 @@ export default function BrandVoiceUpload({ onBack, onComplete }: BrandVoiceUploa
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
-                    Upload File (Text or Image)
+                    Upload Image/File
                   </label>
+                  {(example && (example.type === 'image' || example.type === 'mixed')) && (
+                    <button
+                      onClick={() => removeImage(index)}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg transition-colors text-sm font-medium border border-red-200"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Remove Image
+                    </button>
+                  )}
                   {example && (
                     <span className="inline-flex items-center px-3 py-2 bg-green-50 text-green-700 rounded-lg text-sm font-medium">
-                      {example.type === "image" ? (
+                      {example.type === "image" || example.type === "mixed" ? (
                         <>
                           <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
                           </svg>
-                          Image uploaded
+                          {example.type === "mixed" ? "Image + Text" : "Image uploaded"}
                         </>
                       ) : (
                         <>
                           <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
                           </svg>
-                          {example.content.length} characters
+                          {example.textContent?.length || example.content?.length || 0} characters
                         </>
                       )}
                     </span>
@@ -212,8 +246,8 @@ export default function BrandVoiceUpload({ onBack, onComplete }: BrandVoiceUploa
                 </div>
 
                 {/* Image Preview */}
-                {example && example.type === "image" && (
-                  <div className="mb-2">
+                {(example && (example.type === 'image' || example.type === 'mixed') && example.content) && (
+                  <div className="mb-2 relative">
                     <img 
                       src={example.content} 
                       alt={`Example ${index + 1}`}
@@ -222,14 +256,20 @@ export default function BrandVoiceUpload({ onBack, onComplete }: BrandVoiceUploa
                   </div>
                 )}
 
-                {/* Text Input */}
+                {/* Text Input - Always enabled */}
                 <textarea
-                  value={example && example.type === "text" ? example.content : ""}
-                  onChange={(e) => handleExampleChange(index, e.target.value, "text")}
-                  placeholder="Or paste text content here (blog post, article, social media post, etc.)"
+                  value={example?.textContent || (example?.type === 'text' ? example.content : '') || ''}
+                  onChange={(e) => handleTextChange(index, e.target.value)}
+                  placeholder={example && (example.type === 'image' || example.type === 'mixed') 
+                    ? "Add text to describe or explain this image..." 
+                    : "Paste text content here (blog post, article, social media post, etc.) or upload an image above"}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent h-32 resize-none"
-                  disabled={!!(example && example.type === "image")}
                 />
+                {example && example.type === 'mixed' && (
+                  <p className="mt-1 text-xs text-purple-600">
+                    ✓ Both image and text will be analyzed together
+                  </p>
+                )}
               </div>
             ))}
           </div>
@@ -243,7 +283,7 @@ export default function BrandVoiceUpload({ onBack, onComplete }: BrandVoiceUploa
             </button>
             <button
               onClick={handleAnalyze}
-              disabled={isAnalyzing || examples.filter(ex => ex && ex.content && ex.content.trim().length > 0).length < 2}
+              disabled={isAnalyzing || examples.filter(ex => ex && ((ex.content && ex.content.trim().length > 0) || (ex.textContent && ex.textContent.trim().length > 0))).length < 2}
               className="flex-1 py-3 px-6 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all flex items-center justify-center shadow-lg"
             >
               {isAnalyzing ? (
@@ -262,8 +302,7 @@ export default function BrandVoiceUpload({ onBack, onComplete }: BrandVoiceUploa
 
           <div className="mt-6 p-4 bg-purple-50 border border-purple-200 rounded-lg">
             <p className="text-sm text-purple-800">
-              <strong>Tip:</strong> You can upload images (PNG, JPG, etc.) to analyze visual style, colors, and typography. 
-              Upload text files or paste text to analyze writing style. The more examples you provide, the better Claude can understand your brand voice.
+              <strong>Tip:</strong> You can upload an image AND add text in the same box. This helps Claude understand both your visual style and writing style. The more examples you provide, the better Claude can understand your brand voice.
             </p>
           </div>
         </div>
