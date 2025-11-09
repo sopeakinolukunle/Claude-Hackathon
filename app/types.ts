@@ -1,0 +1,42 @@
+export type Industry = string; // Allow any industry to be entered
+
+export type ContentFormat = 
+  | "blog"
+  | "linkedin"
+  | "twitter"
+  | "google-ads";
+
+export interface BrandVoiceAnalysis {
+  tone: string;
+  style: string;
+  terminology: string[];
+  structure: string;
+  consistencyScore?: number;
+}
+
+export interface GeneratedContent {
+  format: ContentFormat;
+  content: string;
+  title?: string;
+  consistencyScore?: number;
+}
+
+export interface BrandVoiceExample {
+  type: "text" | "image";
+  content: string; // text content or base64 image data
+  mimeType?: string; // for images: image/png, image/jpeg, etc.
+}
+
+export interface ContentGenerationRequest {
+  topic: string;
+  industry: Industry;
+  formats: ContentFormat[];
+  brandVoice?: BrandVoiceAnalysis;
+  brandVoiceExamples?: BrandVoiceExample[] | string[]; // Supports both new format and legacy string array
+}
+
+export interface ContentGenerationResponse {
+  contents: GeneratedContent[];
+  brandVoiceAnalysis?: BrandVoiceAnalysis;
+}
+
