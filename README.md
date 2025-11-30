@@ -4,7 +4,7 @@
 
 Transform a single content idea into a complete, multi-channel marketing campaign in minutes instead of days.
 
-## 🚀 Features
+## Features
 
 - **Multi-Format Content Generation**: Create blog posts, LinkedIn posts, Twitter threads, and Google Ads simultaneously
 - **AI Image Generation**: Claude directly generates professional SVG images within the application
@@ -17,7 +17,7 @@ Transform a single content idea into a complete, multi-channel marketing campaig
 - **Export Capabilities**: Download content for use in your marketing tools
 - **Claude-Only Solution**: No additional API keys required - everything powered by Claude!
 
-## 🛠️ Setup
+## Setup
 
 1. **Install Dependencies**
    ```bash
@@ -41,7 +41,7 @@ Transform a single content idea into a complete, multi-channel marketing campaig
 4. **Open in Browser**
    - Navigate to [http://localhost:3000](http://localhost:3000)
 
-## 📖 How to Use
+## How to Use
 
 1. **Enter Your Topic**: Describe what content you want to create
 2. **Select Industry**: Choose your client's industry for tailored content
@@ -50,7 +50,7 @@ Transform a single content idea into a complete, multi-channel marketing campaig
 5. **Generate**: Click "Generate Content" and wait 30-60 seconds
 6. **Review & Export**: Review all generated content, check consistency scores, and export what you need
 
-## 🎯 Problem Solved
+## Problem Solved
 
 **Before**: 8-10 hours to create a complete content package
 - 3 hours for blog post
@@ -65,7 +65,7 @@ Transform a single content idea into a complete, multi-channel marketing campaig
 
 **Result**: 17x faster content production
 
-## 🏗️ Tech Stack
+## Tech Stack
 
 - **Next.js 16**: React framework with App Router
 - **TypeScript**: Type-safe development
@@ -91,7 +91,7 @@ content-studio/
 └── README.md
 ```
 
-## 🎨 Key Features Explained
+## Key Features Explained
 
 ### Brand Voice Calibration
 Upload 1-3 examples of your existing content (text, images, or both). Claude analyzes:
@@ -147,7 +147,7 @@ Each generated piece receives a consistency score (0-100%) based on:
 - Tone matching
 - Style adherence
 
-## 🚢 Deployment
+## Deployment
 
 This app can be deployed to:
 - **Vercel** (recommended for Next.js)
@@ -156,7 +156,7 @@ This app can be deployed to:
 
 Make sure to set the `ANTHROPIC_API_KEY` environment variable in your deployment platform.
 
-## 📝 License
+## License
 
 This project was created for the Claude Hackathon Challenge: Revitalizing BluePeak Marketing.
 
@@ -166,4 +166,4 @@ This is a hackathon project. Feel free to fork and extend!
 
 ---
 
-**Built with ❤️ for BluePeak Marketing**
+**Built to help individuals, agencies, and businesses create smarter, faster, and more consistent content.**
