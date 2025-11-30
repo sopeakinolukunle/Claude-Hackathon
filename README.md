@@ -160,7 +160,7 @@ Make sure to set the `ANTHROPIC_API_KEY` environment variable in your deployment
 
 This project was created for the Claude Hackathon Challenge: Revitalizing BluePeak Marketing.
 
-## 🤝 Contributing
+## Contributing
 
 This is a hackathon project. Feel free to fork and extend!
 
